@@ -73,6 +73,9 @@ public class SabianListModal extends Dialog {
 
     private boolean showLoaderFirst;
     private String loaderText = "Loading..";
+
+    private String searchHint;
+
     private Loader loader;
     private Error error;
 
@@ -90,6 +93,11 @@ public class SabianListModal extends Dialog {
 
     public SabianListModal setLoaderText(String loaderText) {
         this.loaderText = loaderText;
+        return this;
+    }
+
+    public SabianListModal setSearchHint(String searchHint) {
+        this.searchHint = searchHint;
         return this;
     }
 
@@ -251,6 +259,10 @@ public class SabianListModal extends Dialog {
         if (minHeight != NO_DIMENSION_PIX) {
             vgBody.setMinimumHeight(minHeight);
             vgBody.requestLayout();
+        }
+
+        if(!SabianUtilities.IsStringEmpty(searchHint)){
+            edtSearch.setHint(searchHint);
         }
 
         error = new Error();

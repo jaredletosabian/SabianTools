@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import com.sabiantools.extensions.toJson
 import java.io.*
 
 open class FileManager(private val context: Context) {
@@ -65,6 +66,12 @@ open class FileManager(private val context: Context) {
             it.writeText(data)
         }
         return context.getFileStreamPath(fileName)
+    }
+
+
+    @Throws
+    fun writeObjectToInternalFile(fileName: String, data: Any): File {
+        return writeToInternalFile(fileName,data.toJson())
     }
 
 

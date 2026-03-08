@@ -1,6 +1,8 @@
 package com.sabiantools.extensions
 
-fun Int.withSuffix(): String {
+import android.content.Context
+
+fun Int.withSuffix(context: Context): String {
 
     val j = this % 10
 
@@ -16,5 +18,4 @@ fun Int.withSuffix(): String {
         return "%drd".format(this)
     }
     return "%dth".format(this)
-
 }

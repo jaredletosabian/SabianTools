@@ -163,3 +163,24 @@ val Date.firstDateOfMonth: Date
         calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMinimum(Calendar.DAY_OF_MONTH))
         return calendar.time
     }
+
+/**
+ * Gets the days of the week starting from the given [startDayOfWeek]
+ * startDayOfWeek can be Calendar.Monday, Calendar.Tuesday e.t.c
+ */
+fun Calendar.getDaysOfWeek(startDayOfWeek: Int): List<Date> {
+    val cal = this.clone() as Calendar
+    cal.set(Calendar.DAY_OF_WEEK, startDayOfWeek)
+    val dates = mutableListOf<Date>()
+    for (i in 0 until 7) {
+        dates.add(cal.time)
+        cal.add(Calendar.DAY_OF_MONTH, 1)
+    }
+    return dates
+}
+
+/**
+ * Converts a [Date] to [DateTime]
+ */
+val Date.toDateTime: DateTime
+    get() = DateTime(this)

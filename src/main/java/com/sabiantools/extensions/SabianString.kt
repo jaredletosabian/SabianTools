@@ -7,6 +7,10 @@ import java.util.regex.Pattern
 
 private const val SPECIAL_CHARACTERS_REGEX = "[\\<\\>\\/{}%()\\[\\].+*?^$\\\\|]"
 
+fun Any.toJson(): String {
+    return SabianUtilities.GetStandardGson().toJson(this)
+}
+
 fun String.removeAllSpaces(replaceWith: String = ""): String {
     return replace("\\s+".toRegex(), replaceWith)
 }
@@ -29,8 +33,8 @@ fun String.perfectCase(considerSpaces: Boolean = true): String {
  */
 fun String.perfectForm(): String {
     return this.trim()
-            .removeDoubleSpaces()
-            .perfectCase()
+        .removeDoubleSpaces()
+        .perfectCase()
 }
 
 fun String.escapeSpecialRegexChars(): String {
@@ -58,8 +62,8 @@ fun String.isAMatchByKeyWord(keyWord: String, escapeSpecialCharacters: Boolean =
     if (SabianUtilities.IsStringBlankOrEmpty(this) || SabianUtilities.IsStringBlankOrEmpty(keyWord)) return false
     val searchFor = if (escapeSpecialCharacters) keyWord.escapeSpecialRegexChars() else keyWord
     val pattern = Pattern.compile(
-            ".*$searchFor.*",
-            Pattern.CASE_INSENSITIVE
+        ".*$searchFor.*",
+        Pattern.CASE_INSENSITIVE
     )
     return pattern.matcher(this).matches()
 }
