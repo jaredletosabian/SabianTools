@@ -4,19 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5ca21dab-7311-4fff-ac80-1ec2a7d4cdce" name="Changes" comment="Lab Phase : Theme : Survey : Fixed and enhanced dark and custom theme support">
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_18_01_2024,_23_49_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_18_01_2024__23_49__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sabiantools/extensions/SabianDateTime.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sabiantools/extensions/SabianDateTime.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sabiantools/extensions/SabianNumber.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sabiantools/extensions/SabianNumber.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sabiantools/extensions/SabianString.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sabiantools/extensions/SabianString.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sabiantools/modals/SabianListModal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sabiantools/modals/SabianListModal.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/sabiantools/utilities/files/FileManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sabiantools/utilities/files/FileManager.kt" afterDir="false" />
-    </list>
+    <list default="true" id="5ca21dab-7311-4fff-ac80-1ec2a7d4cdce" name="Changes" comment="Lab Phase : Theme : Survey : Fixed and enhanced dark and custom theme support" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

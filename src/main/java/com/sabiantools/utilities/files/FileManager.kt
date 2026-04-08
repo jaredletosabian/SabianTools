@@ -10,16 +10,23 @@ import java.io.*
 open class FileManager(private val context: Context) {
 
     @Throws
-    fun createInternalDirectory(directoryName: String, asPrivate: Boolean = true, externalDirectoryType: String? = null, createIfNotFound: Boolean = true): File {
+    fun createInternalDirectory(
+        directoryName: String,
+        asPrivate: Boolean = true,
+        externalDirectoryType: String? = null,
+        createIfNotFound: Boolean = true
+    ): File {
         val directory = if (asPrivate) {
             context.filesDir
         } else {
-            context.getExternalFilesDir(externalDirectoryType
+            context.getExternalFilesDir(
+                externalDirectoryType
                     ?: if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                         Environment.DIRECTORY_DOCUMENTS
                     } else {
                         Environment.DIRECTORY_PICTURES
-                    })
+                    }
+            )
         } ?: throw java.lang.Exception("Could not find app directory")
 
         val fileName: String = "%s/%s/".format(directory, directoryName)
@@ -35,7 +42,12 @@ open class FileManager(private val context: Context) {
 
 
     @Throws
-    fun createInternalFile(fileName: String, directoryName: String, asPrivate: Boolean = true, externalDirectoryType: String? = null): File {
+    fun createInternalFile(
+        fileName: String,
+        directoryName: String,
+        asPrivate: Boolean = true,
+        externalDirectoryType: String? = null
+    ): File {
         val directory = createInternalDirectory(directoryName, asPrivate, externalDirectoryType)
         return File(directory, fileName)
     }
@@ -55,12 +67,32 @@ open class FileManager(private val context: Context) {
         return file
     }
 
+    fun writeToFile(fileName: String, data: String,useExternal: Boolean = false): File {
+        val baseDir = if (useExternal) {
+            context.getExternalFilesDir(null) ?: context.filesDir
+        } else {
+            context.filesDir
+        }
+
+        val file = File(baseDir, fileName)
+
+        if (!file.parentFile.exists()) {
+            file.parentFile.mkdirs()
+        }
+
+        file.writeText(data)
+
+        return file
+    }
+
+
+
 
     @Throws
     fun writeToInternalFile(fileName: String, data: String): File {
         val fos = context.openFileOutput(
-                fileName,
-                Context.MODE_PRIVATE
+            fileName,
+            Context.MODE_PRIVATE
         )
         fos.use {
             it.writeText(data)
@@ -71,7 +103,7 @@ open class FileManager(private val context: Context) {
 
     @Throws
     fun writeObjectToInternalFile(fileName: String, data: Any): File {
-        return writeToInternalFile(fileName,data.toJson())
+        return writeToInternalFile(fileName, data.toJson())
     }
 
 
