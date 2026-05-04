@@ -10,6 +10,8 @@ import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 
+import androidx.annotation.Nullable;
+
 import com.iangclifton.android.floatlabel.FloatLabel;
 import com.sabiantools.R;
 import com.sabiantools.controls.texts.TypeFaceFactory;
@@ -20,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
  * Created By Brian Sabana on 7/6/2016.
  */
 public class SabianFloatLabel extends FloatLabel {
-    
+
     private Typeface typeface;
 
 
@@ -75,6 +77,11 @@ public class SabianFloatLabel extends FloatLabel {
 
     public void setHint(String hint) {
         getEditText().setHint(hint);
+    }
+
+    @Nullable
+    public CharSequence getHint() {
+        return getEditText().getHint();
     }
 
     public void setTextColor(int color) {

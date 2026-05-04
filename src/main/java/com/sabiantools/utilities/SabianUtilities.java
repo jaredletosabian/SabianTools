@@ -848,7 +848,7 @@ public class SabianUtilities {
      * @param formats
      * @return
      */
-    public static boolean validatePhoneNumber(String phoneNo, String[] formats) {
+    public static boolean validatePhoneNumber(String phoneNo, @Nullable String[] formats) {
         if (formats == null)
             return validatePhoneNumber(phoneNo);
         for (String format : formats) {
