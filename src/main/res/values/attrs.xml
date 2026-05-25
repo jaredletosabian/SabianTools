@@ -212,6 +212,10 @@
         <attr name="snb_cornerRadius" format="dimension" />
     </declare-styleable>
 
+    <declare-styleable name="MaxHeightRelativeLayout">
+        <attr name="maxHeight" format="dimension"/>
+    </declare-styleable>
+
 
     <attr name="sabianDividerColor" format="color" />
     <attr name="sabianModalColor" format="color" />
@@ -221,6 +225,7 @@
     <attr name="sabianModalEditTextHintColor" format="color" />
     <attr name="sabianModalButtonColor" format="color" />
     <attr name="sabianPrimaryColor" format="color" />
+    <attr name="sabianSecondaryColor" format="color" />
     <attr name="sabianOnPrimaryColor" format="color" />
     <attr name="sabianOverlayColor" format="color" />
     <attr name="sabianNormalTextColor" format="color" />

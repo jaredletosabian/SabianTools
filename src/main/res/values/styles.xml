@@ -14,4 +14,12 @@
         <item name="materialDialogTitleColor">@color/sabian_modal_title_color</item>
         <item name="materialDialogProgressColor">@color/colorPrimary</item>
     </style>
+
+    <style name="SabianCheckBoxTheme">
+        <item name="android:textColor">?attr/sabianModalTextColor</item>
+        <item name="android:textSize">15sp</item>
+        <item name="buttonTint">?attr/sabianSecondaryColor</item>
+        <item name="android:textColorSecondary">?attr/sabianSecondaryColor</item>
+        <item name="colorAccent">?attr/sabianSecondaryColor</item>
+    </style>
 </resources>

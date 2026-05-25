@@ -14,7 +14,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -25,17 +24,22 @@ import com.beardedhen.androidbootstrap.FontAwesomeText;
 import com.gc.materialdesign.views.ButtonFlat;
 import com.sabiantools.R;
 import com.sabiantools.utilities.SabianUtilities;
+import com.sabiantools.utilities.tasks.search.OnLinearDataSearchListener;
+import com.sabiantools.utilities.tasks.search.SabianLinearDataSearcher;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
+
+import org.jetbrains.annotations.NotNull;
 
 public class SabianListModal extends Dialog {
     private ViewGroup vgBody;
@@ -43,22 +47,24 @@ public class SabianListModal extends Dialog {
     private View.OnClickListener onOkayClickListener, onCancelClickListener;
     private String okayButtonText, cancelButtonText;
     private ListView lstModalList;
-    private @ColorRes
+    private @ColorRes int okayButtonColorRes = NO_RES_ID;
+    private @ColorRes int cancelButtonColorRes = NO_RES_ID;
+
+    private @ColorInt
     int okayButtonColor = NO_RES_ID;
-    private @ColorRes
+    private @ColorInt
     int cancelButtonColor = NO_RES_ID;
+
     public static final int NO_RES_ID = -1;
     private TextView txtTitle, txtMessage;
     private String title, message;
-    private @ColorRes
-    int titleColor = NO_RES_ID;
-    private @ColorRes
-    int messageColor = NO_RES_ID;
+    private @ColorRes int titleColor = NO_RES_ID;
+    private @ColorRes int messageColor = NO_RES_ID;
     private boolean animate = true;
     private ViewGroup vgBodyContainer;
 
-    private ArrayList<ListItem> listItems;
-    private ArrayList<ListItem> allItems;
+    protected ArrayList<ListItem> listItems;
+    protected ArrayList<ListItem> allItems;
 
     private ListItemAdapter adapter;
     private OnListItemSelectedListener onListItemSelectedListener;
@@ -81,6 +87,34 @@ public class SabianListModal extends Dialog {
 
     private int minHeight = NO_DIMENSION_PIX;
     public static final int NO_DIMENSION_PIX = -1;
+
+    SabianListModalSearcher searcher;
+
+    private void initSearcher() {
+        searcher = new SabianListModalSearcher(new OnLinearDataSearchListener() {
+            @Override
+            public void onSearched(@NotNull ArrayList<Object> newList) {
+                SabianListModal.this.onSearched(newList);
+            }
+
+            @Override
+            public void onSearching() {
+
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            @NotNull
+            public List<Object> filterBeforeSearch(@NotNull List<?> list) {
+                return new ArrayList<>(list);
+            }
+        });
+    }
+
 
     public SabianListModal setMinHeight(int minHeight) {
         this.minHeight = minHeight;
@@ -147,24 +181,28 @@ public class SabianListModal extends Dialog {
     }
 
     public SabianListModal addListItem(ListItem item) {
-        if (listItems == null)
-            listItems = new ArrayList<>();
+        if (listItems == null) listItems = new ArrayList<>();
         if (!listItems.contains(item)) {
             listItems.add(item);
         }
         return this;
     }
 
+    @LayoutRes
+    protected int getLayoutRes() {
+        return R.layout.sabian_modal_list_smooth;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.sabian_modal_list_smooth);
-        init_elements();
+        setContentView(getLayoutRes());
+        initElements();
     }
 
-    protected void init_elements() {
+    protected void initElements() {
+        initSearcher();
         vgBody = (ViewGroup) findViewById(R.id.rll_SabianModalContainer);
         btnOk = (ButtonFlat) findViewById(R.id.btn_SabianModalOk);
         btnCancel = (ButtonFlat) findViewById(R.id.btn_SabianModalCancel);
@@ -176,8 +214,7 @@ public class SabianListModal extends Dialog {
         edtSearch = (EditText) findViewById(R.id.edt_SabianModalSearch);
         vgSearchContainer = (ViewGroup) findViewById(R.id.rll_SabianModalSearchContainer);
 
-        if (!enableSearch)
-            vgSearchContainer.setVisibility(View.GONE);
+        if (!enableSearch) vgSearchContainer.setVisibility(View.GONE);
 
         edtSearch.addTextChangedListener(new TextWatcher() {
             @Override
@@ -196,18 +233,15 @@ public class SabianListModal extends Dialog {
             }
         });
 
-
         allItems = new ArrayList<>();
         allItems.addAll(listItems);
 
-        adapter = new ListItemAdapter(getContext(), -1, listItems);
+        adapter = createListAdapter(listItems);
         lstModalList.setAdapter(adapter);
 
         lstModalList.setOnItemClickListener((adapterView, view, i, l) -> {
             selectedItem = listItems.get(i);
-            if (onListItemSelectedListener != null)
-                onListItemSelectedListener.onSelect(selectedItem, SabianListModal.this);
-            dismiss();
+            onListItemSelected(selectedItem);
         });
 
         if (!SabianUtilities.IsStringEmpty(okayButtonText)) {
@@ -220,34 +254,32 @@ public class SabianListModal extends Dialog {
             btnCancel.setVisibility(View.GONE);
         }
 
-        if (onOkayClickListener != null) {
-            btnOk.setOnClickListener(onOkayClickListener);
-        } else {
-            btnOk.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    dismiss();
-                }
-            });
-        }
-
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (onCancelClickListener != null)
-                    onCancelClickListener.onClick(view);
+        btnOk.setOnClickListener(view -> {
+            if (onOkayClickListener != null) {
+                onOkayClickListener.onClick(view);
+            } else {
                 dismiss();
             }
         });
 
+        btnCancel.setOnClickListener(view -> {
+            if (onCancelClickListener != null) onCancelClickListener.onClick(view);
+            dismiss();
+        });
+
+        if (okayButtonColorRes != NO_RES_ID)
+            btnOk.setBackgroundColor(getContext().getResources().getColor(okayButtonColorRes));
+
+        if (cancelButtonColorRes != NO_RES_ID)
+            btnCancel.setBackgroundColor(getContext().getResources().getColor(cancelButtonColorRes));
+
         if (okayButtonColor != NO_RES_ID)
-            btnOk.setBackgroundColor(getContext().getResources().getColor(okayButtonColor));
+            btnOk.setBackgroundColor(okayButtonColor);
 
         if (cancelButtonColor != NO_RES_ID)
-            btnCancel.setBackgroundColor(getContext().getResources().getColor(cancelButtonColor));
+            btnCancel.setBackgroundColor(cancelButtonColor);
 
-        if (!SabianUtilities.IsStringEmpty(title))
-            txtTitle.setText(title);
+        if (!SabianUtilities.IsStringEmpty(title)) txtTitle.setText(title);
 
         if (titleColor != NO_RES_ID)
             txtTitle.setTextColor(getContext().getResources().getColor(titleColor));
@@ -261,32 +293,27 @@ public class SabianListModal extends Dialog {
             vgBody.requestLayout();
         }
 
-        if(!SabianUtilities.IsStringEmpty(searchHint)){
+        if (!SabianUtilities.IsStringEmpty(searchHint)) {
             edtSearch.setHint(searchHint);
         }
 
         error = new Error();
         loader = new Loader();
-        if (showLoaderFirst)
-            loader.show(loaderText);
+        if (showLoaderFirst) loader.show(loaderText);
+    }
+
+    protected ListItemAdapter createListAdapter(List<SabianListModal.ListItem> listItems) {
+        return new ListItemAdapter(getContext(), -1, listItems);
+    }
+
+    protected void onListItemSelected(ListItem item) {
+        if (onListItemSelectedListener != null)
+            onListItemSelectedListener.onSelect(item, SabianListModal.this);
+        dismiss();
     }
 
     private void searchItems(String search) {
-        listItems.clear();
-        if (SabianUtilities.IsStringEmpty(search)) {
-            listItems.addAll(allItems);
-        } else {
-            for (ListItem item : allItems) {
-                Pattern pattern = Pattern.compile(".*" + search + ".*", Pattern.CASE_INSENSITIVE);
-                boolean matches = false;
-                String searchFor = (item.title != null) ? item.title : "";
-                searchFor += (item.subTitle != null) ? item.subTitle : "";
-                matches = pattern.matcher(searchFor).matches();
-                if (matches)
-                    listItems.add(item);
-            }
-        }
-        adapter.notifyDataSetChanged();
+        searcher.search(allItems, search);
     }
 
     public SabianListModal setListItems(List<ListItem> items) {
@@ -301,17 +328,28 @@ public class SabianListModal extends Dialog {
     public SabianListModal setListItems(List<ListItem> items, boolean refreshAdapter) {
         setListItems(items);
         if (refreshAdapter) {
-            adapter = new ListItemAdapter(getContext(), -1, listItems);
+            adapter = createListAdapter(listItems);
             lstModalList.setAdapter(adapter);
-
             lstModalList.setOnItemClickListener((adapterView, view, i, l) -> {
                 selectedItem = listItems.get(i);
-                if (onListItemSelectedListener != null)
-                    onListItemSelectedListener.onSelect(selectedItem, SabianListModal.this);
-                dismiss();
+                onListItemSelected(selectedItem);
             });
         }
         return this;
+    }
+
+    protected void updateItem(ListItem item, boolean updateAdapter) {
+        int allIndex = allItems.indexOf(item);
+        if (allIndex > -1) {
+            allItems.set(allIndex, item);
+        }
+        int index = listItems.indexOf(item);
+        if (index > -1) {
+            listItems.set(index, item);
+        }
+        if (updateAdapter && adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     public Error getError() {
@@ -356,13 +394,13 @@ public class SabianListModal extends Dialog {
         return this;
     }
 
-    public SabianListModal setOkayButtonColor(@ColorRes int okayButtonColor) {
-        this.okayButtonColor = okayButtonColor;
+    public SabianListModal setOkayButtonColorRes(@ColorRes int okayButtonColorRes) {
+        this.okayButtonColorRes = okayButtonColorRes;
         return this;
     }
 
-    public SabianListModal setCancelButtonColor(@ColorRes int cancelButtonColor) {
-        this.cancelButtonColor = cancelButtonColor;
+    public SabianListModal setCancelButtonColorRes(@ColorRes int cancelButtonColorRes) {
+        this.cancelButtonColorRes = cancelButtonColorRes;
         return this;
     }
 
@@ -401,14 +439,38 @@ public class SabianListModal extends Dialog {
         return this;
     }
 
+
+    public void onSearched(@NotNull ArrayList<Object> newList) {
+        listItems.clear();
+        for (Object item : newList) {
+            if (item instanceof ListItem) {
+                listItems.add((ListItem) item);
+            }
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    public SabianListModal setOkayButtonColor(@ColorInt int okayButtonColor) {
+        this.okayButtonColor = okayButtonColor;
+        if (okayButtonColor != NO_RES_ID && btnOk != null)
+            btnOk.setBackgroundColor(okayButtonColor);
+        return this;
+    }
+
+    public SabianListModal setCancelButtonColor(@ColorInt int cancelButtonColor) {
+        this.cancelButtonColor = cancelButtonColor;
+        if (cancelButtonColor != NO_RES_ID && btnCancel != null)
+            btnCancel.setBackgroundColor(cancelButtonColor);
+        return this;
+    }
+
     public static class ListItem {
         private long ID = -2;
         private String title;
         private String subTitle;
         private String imageUrl;
         private boolean isImageVector = false;
-        private @DrawableRes
-        int imageRes = NO_IMAGE;
+        private @DrawableRes int imageRes = NO_IMAGE;
         private Object value;
 
         public Object getValue() {
@@ -442,8 +504,7 @@ public class SabianListModal extends Dialog {
         }
 
         public long getID() {
-            if (ID == -2)
-                this.ID = title.hashCode();
+            if (ID == -2) this.ID = title.hashCode();
             return ID;
         }
 
@@ -520,11 +581,21 @@ public class SabianListModal extends Dialog {
         }
     }
 
+    protected static class Holder {
+        private ViewGroup vgMainContainer;
+        public ImageView imgIcon;
+        public TextView txtTitle;
+        public TextView txtSubTitle;
+        public FontAwesomeText ftMore;
+        public ViewGroup imgContainer;
+    }
+
     public static class ListItemAdapter extends ArrayAdapter<ListItem> {
 
-        private int imageEnabledPadding;
-        private LayoutInflater inflater;
-        private List<ListItem> items;
+        protected int imageEnabledPadding;
+
+        protected LayoutInflater inflater;
+        protected List<ListItem> items;
 
         public ListItemAdapter(@NonNull Context context, int resource, @NonNull List<ListItem> objects) {
             super(context, resource, objects);
@@ -533,43 +604,69 @@ public class SabianListModal extends Dialog {
             imageEnabledPadding = getContext().getResources().getDimensionPixelSize(R.dimen.sabian_modal_list_image_padding);
         }
 
-        @NonNull
-        @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            View view;
-            Holder holder = new Holder();
-            if (convertView != null) {
-                view = convertView;
-                holder = (Holder) view.getTag();
-            } else {
-                view = inflater.inflate(R.layout.sabian_modal_list_item, parent, false);
-                holder.vgMainContainer = (ViewGroup) view.findViewById(R.id.ll_ViewHoldermodalContainer);
-                holder.txtTitle = (TextView) view.findViewById(R.id.sct_ViewHoldermodalTitle);
-                holder.txtSubTitle = (TextView) view.findViewById(R.id.sct_ViewHoldermodalSubTitle);
-                holder.imgIcon = (ImageView) view.findViewById(R.id.img_ViewHoldermodalImage);
-                holder.imgContainer = (ViewGroup) holder.imgIcon.getParent();
-                view.setTag(holder);
-            }
-            ListItem item = items.get(position);
+        View createListItemView(ViewGroup parent) {
+            return inflater.inflate(getLayoutRes(), parent, false);
+        }
+
+        @LayoutRes
+        protected int getLayoutRes() {
+            return R.layout.sabian_modal_list_item;
+        }
+
+        protected void initHolder(View view, Holder holder) {
+            holder.vgMainContainer = view.findViewById(R.id.ll_ViewHoldermodalContainer);
+            holder.txtTitle = view.findViewById(R.id.sct_ViewHoldermodalTitle);
+            holder.txtSubTitle = view.findViewById(R.id.sct_ViewHoldermodalSubTitle);
+            holder.imgIcon = view.findViewById(R.id.img_ViewHoldermodalImage);
+            holder.imgContainer = (ViewGroup) holder.imgIcon.getParent();
+        }
+
+        protected Holder createHolder(){
+            return new Holder();
+        }
+
+        protected void bindHolderItem(Holder holder, ListItem item) {
             holder.txtTitle.setText(item.getTitle());
             if (!SabianUtilities.IsStringEmpty(item.getSubTitle())) {
                 holder.txtSubTitle.setText(item.getSubTitle());
             }
-            return view;
         }
 
-        private static class Holder {
-            private ViewGroup vgMainContainer;
-            public ImageView imgIcon;
-            public TextView txtTitle;
-            public TextView txtSubTitle;
-            public FontAwesomeText ftMore;
-            public ViewGroup imgContainer;
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            View view;
+            Holder holder;
+            if (convertView != null) {
+                view = convertView;
+                holder = (Holder) view.getTag();
+            } else {
+                view = createListItemView(parent);
+                holder = createHolder();
+                initHolder(view, holder);
+                view.setTag(holder);
+            }
+            ListItem item = items.get(position);
+            bindHolderItem(holder, item);
+            return view;
         }
     }
 
     public interface OnListItemSelectedListener {
         void onSelect(ListItem item, SabianListModal modal);
+    }
+
+    protected static class SabianListModalSearcher extends SabianLinearDataSearcher<SabianListModal.ListItem> {
+
+        public SabianListModalSearcher(@org.jetbrains.annotations.Nullable OnLinearDataSearchListener listener) {
+            super(ListItem.class, listener);
+        }
+
+        @NonNull
+        @Override
+        public String[] getSearchCriteria(ListItem content) {
+            return new String[]{content.getTitle(), content.getSubTitle()};
+        }
     }
 
     public class Loader {
@@ -630,8 +727,7 @@ public class SabianListModal extends Dialog {
             } else {
                 btnRetry.setText(retryButtonText);
             }
-            if (onRetryClickListener != null)
-                btnRetry.setOnClickListener(onRetryClickListener);
+            if (onRetryClickListener != null) btnRetry.setOnClickListener(onRetryClickListener);
         }
 
         public void hideError() {
