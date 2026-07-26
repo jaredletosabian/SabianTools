@@ -3,21 +3,41 @@ package com.sabiantools.modals;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.core.widget.CompoundButtonCompat;
 
 import com.sabiantools.R;
+import com.sabiantools.utilities.SabianToast;
+import com.sabiantools.utilities.SabianUtilities;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SabianCheckListModal extends SabianListModal {
 
-    Integer checkBoxColor;
+    private Integer checkBoxColor;
 
-    private OnCheckListItemsSelectedListener onCheckListItemsSelectedListener;
+    private boolean allowAddNew;
+
+    private String addNewText;
+
+    private View btnAddNew;
+
+    private TextView txtAddNew;
+
+    public void setAllowAddNew(boolean allowAddNew) {
+        this.allowAddNew = allowAddNew;
+    }
+
+    public void setAddNewText(String addNewText) {
+        this.addNewText = addNewText;
+    }
+
+    private OnCheckListItemsListener onCheckListItemsListener;
 
     public SabianCheckListModal(@NonNull Context context) {
         super(context);
@@ -43,11 +63,49 @@ public class SabianCheckListModal extends SabianListModal {
     protected void initElements() {
         setOnOkayClickListener(view -> onAllSelected());
         setOnCancelClickListener(view -> dismiss());
+        initAddNewOptionElements();
         super.initElements();
     }
 
+    protected void initAddNewOptionElements() {
+        txtAddNew = findViewById(R.id.sct_SabianModalZeroAddNew);
+        if (!SabianUtilities.IsStringBlankOrEmpty(addNewText)) {
+            txtAddNew.setText(addNewText);
+        }
+        btnAddNew = findViewById(R.id.rll_SabianModalZeroAddNew);
+        btnAddNew.setOnClickListener(view -> {
+            addNew(getSearchText());
+        });
+    }
+
+    private void addNew(@Nullable String value) {
+        if (value == null || SabianUtilities.IsStringBlankOrEmpty(value)) {
+            Context context = getContext();
+            SabianUtilities.DisplayMessage(context, context.getString(R.string.please_enter_text_in_the_search_bar));
+            return;
+        }
+        ListCheckItem item = onCheckListItemsListener.onAddNew(value);
+        if (item == null) {
+            item = new ListCheckItem(value);
+            item.setID(SabianUtilities.GetCurrentTimestamp());
+        }
+        if (listItems == null) listItems = new ArrayList<>();
+        final int index = listItems.indexOf(item);
+        if (index > -1) {
+            item = (ListCheckItem) listItems.get(index);
+            item.setChecked(true);
+            listItems.remove(index);
+            listItems.add(0, item);
+        } else {
+            item.setChecked(true);
+            listItems.add(0, item);
+        }
+        if (adapter == null) return;
+        adapter.notifyDataSetChanged();
+    }
+
     private void onAllSelected() {
-        if (onCheckListItemsSelectedListener == null) return;
+        if (onCheckListItemsListener == null) return;
         final ArrayList<ListCheckItem> selected = new ArrayList<>();
         for (ListItem item : listItems) {
             ListCheckItem cItem = (ListCheckItem) item;
@@ -55,7 +113,7 @@ public class SabianCheckListModal extends SabianListModal {
                 selected.add(cItem);
             }
         }
-        onCheckListItemsSelectedListener.onSelected(selected);
+        onCheckListItemsListener.onSelected(selected);
         dismiss();
     }
 
@@ -78,13 +136,18 @@ public class SabianCheckListModal extends SabianListModal {
         updateItem(cItem, true);
     }
 
-    public SabianCheckListModal setOnCheckListItemsSelectedListener(OnCheckListItemsSelectedListener onCheckListItemsSelectedListener) {
-        this.onCheckListItemsSelectedListener = onCheckListItemsSelectedListener;
+    public SabianCheckListModal setOnCheckListItemsSelectedListener(OnCheckListItemsListener onCheckListItemsListener) {
+        this.onCheckListItemsListener = onCheckListItemsListener;
         return this;
     }
 
-    public interface OnCheckListItemsSelectedListener {
+    public interface OnCheckListItemsListener {
         void onSelected(List<ListCheckItem> selected);
+
+        @Nullable
+        default ListCheckItem onAddNew(@NonNull String newItem) {
+            return null;
+        }
     }
 
     private static class CheckListAdapter extends SabianListModal.ListItemAdapter {
@@ -124,16 +187,7 @@ public class SabianCheckListModal extends SabianListModal {
             cHolder.checkBox = view.findViewById(R.id.cbx_ViewHoldermodalCheckBox);
             if (checkBoxColor != null) {
                 final int color = checkBoxColor;
-                final ColorStateList colorList = new ColorStateList(
-                        new int[][]{
-                                new int[]{-android.R.attr.state_checked},
-                                new int[]{android.R.attr.state_checked}
-                        },
-                        new int[]{
-                                color,
-                                color
-                        }
-                );
+                final ColorStateList colorList = new ColorStateList(new int[][]{new int[]{-android.R.attr.state_checked}, new int[]{android.R.attr.state_checked}}, new int[]{color, color});
                 CompoundButtonCompat.setButtonTintList(cHolder.checkBox, colorList);
             }
         }

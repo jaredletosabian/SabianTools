@@ -76,6 +76,26 @@
                     android:textSize="15sp" />
             </RelativeLayout>
 
+            <!--Add New-->
+            <RelativeLayout
+                android:id="@+id/rll_SabianModalZeroAddNew"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bottom_border_bg"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:visibility="gone">
+
+                <com.sabiantools.controls.texts.SabianCondensedText
+                    android:id="@+id/sct_SabianModalZeroAddNew"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Add New"
+                    android:textColor="?attr/sabianModalEditTextColor"
+                    android:textColorHint="?attr/sabianModalEditTextHintColor"
+                    sabian:SabianRobotoType="Bold" />
+            </RelativeLayout>
+
             <!--List-->
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -97,8 +117,8 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/sabian_modal_footer_height"
             android:layout_alignParentBottom="true"
-            android:gravity="end|center_vertical"
             android:background="@drawable/top_border_bg"
+            android:gravity="end|center_vertical"
             android:orientation="horizontal"
             android:visibility="visible">
 

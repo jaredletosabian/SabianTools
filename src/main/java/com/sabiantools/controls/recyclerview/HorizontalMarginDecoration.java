@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * Created by Brian Sabana on 11/03/2018.
  *
- * @deprecated Use {@link HorizontalPaddingDecoration}
  */
 public class HorizontalMarginDecoration extends RecyclerView.ItemDecoration {
 

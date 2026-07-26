@@ -37,7 +37,7 @@ dependencies {
     implementation supportDependencies.fragments
     implementation SabianDependancies.Bootstrap
     implementation SabianDependancies.Gson
-    implementation SabianDependancies.Guava
+    //implementation SabianDependancies.Guava
     implementation SabianDependancies.JodaTime
     implementation SabianDependancies.MaterialDesign
     implementation SabianDependancies.Picasso

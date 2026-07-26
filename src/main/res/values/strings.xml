@@ -2,4 +2,5 @@
     <string name="app_name">Sabian Tools</string>
     <string name="cancel">Cancel</string>
     <string name="submit">Submit</string>
+    <string name="please_enter_text_in_the_search_bar">Please enter text in the search bar</string>
 </resources>

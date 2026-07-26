@@ -66,7 +66,7 @@ public class SabianListModal extends Dialog {
     protected ArrayList<ListItem> listItems;
     protected ArrayList<ListItem> allItems;
 
-    private ListItemAdapter adapter;
+    protected ListItemAdapter adapter;
     private OnListItemSelectedListener onListItemSelectedListener;
     private ListItem selectedItem;
 
@@ -89,6 +89,12 @@ public class SabianListModal extends Dialog {
     public static final int NO_DIMENSION_PIX = -1;
 
     SabianListModalSearcher searcher;
+
+    @Nullable
+    protected String getSearchText() {
+        if (edtSearch == null) return null;
+        return edtSearch.getText().toString();
+    }
 
     private void initSearcher() {
         searcher = new SabianListModalSearcher(new OnLinearDataSearchListener() {
@@ -621,7 +627,7 @@ public class SabianListModal extends Dialog {
             holder.imgContainer = (ViewGroup) holder.imgIcon.getParent();
         }
 
-        protected Holder createHolder(){
+        protected Holder createHolder() {
             return new Holder();
         }
 
