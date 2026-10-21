@@ -128,6 +128,95 @@ fun String.equalsNormalized(value: String): Boolean {
     return this.trim().equals(value.trim(), ignoreCase = true)
 }
 
+
+/**
+ * Extracts the first keyword between the specified opening and closing characters.
+ *
+ * Examples:
+ * ```
+ * "{select_sku}".extractKeyword()               // "select_sku"
+ * "Choose {select_sku} here".extractKeyword()   // "select_sku"
+ * "[select_sku]".extractKeyword("[]")           // "select_sku"
+ * "(select_sku)".extractKeyword("()")           // "select_sku"
+ * "{first} and {second}".extractKeyword()      // "first"
+ * "{}".extractKeyword()                       // ""
+ * "No keyword here".extractKeyword()          // null
+ * "{missing_end".extractKeyword()             // null
+ * ```
+ *
+ * @param containingString Two characters defining the delimiters, such as "{}" or "[]".
+ * @return The enclosed keyword, or null if the delimiters are invalid or not found.
+ */
+fun String.extractKeyword(containingString: String = "{}"): String? {
+    // Ensure there is exactly one opening and one closing character.
+    if (containingString.length != 2) return null
+
+    // Find the first opening character.
+    val start = indexOf(containingString[0])
+    if (start == -1) return null
+
+    // Find the first closing character after the opening character.
+    val end = indexOf(containingString[1], start + 1)
+    if (end == -1) return null
+
+    // Return the text between the delimiters, excluding the delimiters themselves.
+    return substring(start + 1, end)
+}
+
+
+/**
+ * Replaces all occurrences of a delimited keyword, ignoring case.
+ * Other keywords and occurrences outside the delimiters are left unchanged.
+ *
+ * Example:
+ * ```
+ * "The {selected_sku} was chosen and {Selected_sku} was ordered as well"
+ *     .replaceKeyword("selected_sku", "car")
+ * // "The car was chosen and car was ordered as well"
+ * ```
+ *
+ * @param keyword The keyword to match between the delimiters, ignoring case.
+ * @param replacement The literal text used to replace every matching placeholder.
+ * @param containingString Exactly two characters defining the opening and closing delimiters.
+ * Defaults to "{}".
+ * @return The string with all matching placeholders replaced, or the original string if
+ * [containingString] does not contain exactly two characters or no matching placeholder is found.
+ */
+fun String.replaceKeyword(
+    keyword: String,
+    replacement: String,
+    containingString: String = "{}"
+): String {
+    if (containingString.length != 2) return this
+    val placeholder = "${containingString[0]}$keyword${containingString[1]}"
+    return replace(placeholder, replacement, ignoreCase = true)
+}
+
+/**
+ * Extracts the first keyword and replaces all matching placeholders,
+ * ignoring case. Returns null if no keyword is found.
+ *
+ * Example:
+ * ```
+ * "The {selected_sku} was chosen and the person ordered the {Selected_sku} as well"
+ *     .replaceFirstKeyword("car")
+ * // "The car was chosen and the person ordered the car as well"
+ * ```
+ *
+ * @param replacement The literal text used to replace every placeholder matching the first keyword.
+ * @param containingString Exactly two characters defining the opening and closing delimiters.
+ * Defaults to "{}".
+ * @return The string with all matching placeholders replaced, ignoring case, or `null` if
+ * [containingString] does not contain exactly two characters or no complete placeholder is found.
+ */
+fun String.replaceFirstKeyword(
+    replacement: String,
+    containingString: String = "{}"
+): String? {
+    val keyword = extractKeyword(containingString) ?: return null
+    return replaceKeyword(keyword, replacement, containingString)
+}
+
 /**
  * Determines whether this string contains the specified keyword,
  * ignoring character case.
@@ -139,6 +228,24 @@ fun String.equalsNormalized(value: String): Boolean {
  */
 fun String.isAMatchByKeyWord(keyWord: String): Boolean {
     return isAMatchByKeyWord(keyWord, true)
+}
+
+/**
+ * Determines whether this string contains the specified keyword,
+ * ignoring character case.
+ *
+ * Regular expression special characters in the keyword are escaped.
+ *
+ * @param keyWord The keyword to search for.
+ * @return `true` if the keyword is found; otherwise `false`.
+ */
+fun String.isAMatchByKeyWordWithReverse(
+    keyWord: String,
+    escapeSpecialCharacters: Boolean = true
+): Boolean {
+    val valid = isAMatchByKeyWord(keyWord, escapeSpecialCharacters)
+    if (valid) return true
+    return keyWord.isAMatchByKeyWord(this, escapeSpecialCharacters)
 }
 
 /**

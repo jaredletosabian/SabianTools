@@ -88,6 +88,10 @@ public class SabianFloatLabel extends FloatLabel {
         getEditText().setTextColor(color);
     }
 
+    public void setEnabled(boolean enabled) {
+        getEditText().setEnabled(enabled);
+    }
+
     public void setTextHintColor(int color) {
         getEditText().setHintTextColor(color);
     }
